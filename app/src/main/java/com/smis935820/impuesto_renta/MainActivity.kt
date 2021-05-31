@@ -15,7 +15,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         btncalcular.setOnClickListener {
-           datos()
+
+            if (txtnombre.text.isEmpty() || txtsueldo.text.isEmpty()) {
+                Toast.makeText(this, "Debe llenar ambos campos", Toast.LENGTH_SHORT).show()
+            } else{
+                datos()
+            }
         }
     }
 
@@ -25,54 +30,63 @@ class MainActivity : AppCompatActivity() {
         val sueldo: Double = txtsueldo.text.toString().trim().toDouble()
         val dc = DecimalFormat("$#.00")
 
-        val c1 = sueldo * 0.0725
-        val c2 = sueldo * 0.03
-        val c3: Double = c1 + c2
+        val c1: Double = sueldo * 0.0725
+        val c2: Double
+        val c3: Double
+        val sueldods: Double
         var isr: Double
         var tramo: String
         var sf: Double
 
+        if(sueldo > 999){
+            c2 = 30.0
+            c3= c1 + c2
+            sueldods = sueldo - c3
+        } else{
+            c2 = sueldo * 0.03
+            c3= c1 + c2
+            sueldods = sueldo - c3
+        }
         val b = Bundle()
         b.putString("nombre", nombre)
         b.putString("afp", dc.format(c1))
         b.putString("isss", dc.format(c2))
 
-        if(sueldo < 472.01){
+        if(sueldods < 472.01){
             isr = 0.0
             tramo = "Tramo I: Sin Retenciones"
-            sf = sueldo - c3
+            sf = sueldods
             b.putString("isr", dc.format(isr))
             b.putString("tramo", tramo)
             b.putString("sf", dc.format(sf))
         }
 
-        if(sueldo > 472 && sueldo < 895.25){
-            isr = ((sueldo - (c3 + 472)) * 0.10) + 17.67
-            tramo = "Tramo II: Se aplican Retenciones"
-            sf = sueldo - (isr+c3)
+        if(sueldods > 472 && sueldods < 895.25){
+            isr = ((sueldods - (472)) * 0.10) + 17.67
+            tramo = "Se aplico el Tramo II"
+            sf = sueldods - (isr)
             b.putString("isr", dc.format(isr))
             b.putString("tramo", tramo)
             b.putString("sf", dc.format(sf))
         }
 
-        if(sueldo > 895.24 && sueldo < 2038.11){
-            isr = ((sueldo - (c3 + 895.24)) * 0.20) + 60
-            tramo = "Tramo III: Se aplican Retenciones"
-            sf = sueldo - (isr+c3)
+        if(sueldods > 895.24 && sueldods < 2038.11){
+            isr = ((sueldods - (895.24)) * 0.20) + 60
+            tramo = "Se aplico el Tramo III"
+            sf = sueldods - (isr)
             b.putString("isr", dc.format(isr))
             b.putString("tramo", tramo)
             b.putString("sf", dc.format(sf))
         }
 
-        if(sueldo > 2038.10){
-            isr = ((sueldo - (c3 + 2038.10)) * 0.30) + 288.57
-            tramo = "Tramo IV: Se aplican Retenciones"
-            sf = sueldo - (isr+c3)
+        if(sueldods > 2038.10){
+            isr = ((sueldods - (2038.10)) * 0.30) + 288.57
+            tramo = "Se aplico el Tramo IV"
+            sf = sueldods - (isr)
             b.putString("isr", dc.format(isr))
             b.putString("tramo", tramo)
             b.putString("sf", dc.format(sf))
         }
-
 
         intent.putExtras(b)
         startActivity(intent)
